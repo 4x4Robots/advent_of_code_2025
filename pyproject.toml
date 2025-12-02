@@ -1,7 +1,11 @@
 [project]
 name = "advent-of-code-2025"
 version = "0.1.0"
-description = "Add your description here"
+description = "My solutions of Advent of Code 2025."
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "marimo>=0.18.1",
+    "numpy>=2.3.5",
+    "polars>=1.35.2",
+]

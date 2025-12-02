@@ -126,14 +126,40 @@ def _(step):
 
             # How many times was 0 passed?
             zeros_passed = 0
-            if position + step > num_positions:
-                zeros_passed = (position + step) // num_positions
-                if position == 0:
-                    zeros_passed -= 1
-            if position + step < 0:
-                zeros_passed = -(position + step - num_positions)  // num_positions
-                if position == 0:
-                    zeros_passed -= 1
+            #if position + step >= num_positions:
+            #    zeros_passed = (position + step) // num_positions
+            #if position + step < 0:
+            #    zeros_passed = -(position + 1 + step)  // num_positions
+            # full rotations
+            #zeros_passed += step // num_positions
+            #if zeros_passed:
+            #    print(f"Full rotations: {zeros_passed}")
+            #print(f"{step = } {num_positions = }")
+            #full_rotations = step // num_positions
+            if step > 0:
+                full_rotations = step // num_positions
+                zeros_passed += full_rotations
+                print(f"Full positive rotations: {full_rotations}")
+                if position > 0 and position + step - full_rotations * num_positions > num_positions:
+                    zeros_passed += 1
+                    print(f"Partial positive rotation")
+            if step < 0:
+                full_rotations = -step // num_positions
+                zeros_passed += full_rotations
+                print(f"Full negative rotations: {full_rotations}")
+                if position > 0 and position + step + full_rotations * num_positions < 0:
+                    zeros_passed += 1
+                    print(f"Partial negative rotation")
+            # partial rotations going over 0
+            #remainder = step % num_positions
+            #print(f"{remainder = }")
+            #if position + remainder > num_positions:
+            #    zeros_passed += 1
+            #    print(f"Partial positive rotation")
+            #if position + remainder < 0:
+            #    zeros_passed += 1
+            #    print(f"Partial negative rotation")
+            #    
             num_zeros += zeros_passed
 
             # rotate to new position
@@ -142,6 +168,7 @@ def _(step):
             # don't count stopped at zero when overrotating (automatically included)
             if position == 0: #and zeros_passed == 0:
                 num_zeros += 1
+                print("Ended on zero.")
         
             print(f"- The dial is rotated {line} to point at {position}{'.' if zeros_passed == 0 else f'; during this rotation, it points at 0 {zeros_passed} times.'} {zeros_passed = } {num_zeros = }")
 

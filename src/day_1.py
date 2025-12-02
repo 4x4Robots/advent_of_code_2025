@@ -12,7 +12,7 @@ def _():
 
 @app.cell
 def _():
-    PATH_FILE = "input/input_day_1_example.txt"
+    PATH_FILE = "input/input_day_1_complete.txt"
     return (PATH_FILE,)
 
 
@@ -44,11 +44,11 @@ def _(input):
 
 
 @app.function
-def rotate_dial(start_position: int, steps: list[str], index: int, num_positions: int = 100) -> int:
+def rotate_dial(start_position: int, steps: list[str], index: int, num_zeros: int = 0, num_positions: int = 100) -> (int, int):
     """Rotate the position by the steps at the given index left or right. Return the new position."""
     if index >= len(steps):
         print("Reached end of steps.")
-        return start_position
+        return (start_position, num_zeros)
 
     step = steps[index]
     if step[0] == "L":
@@ -61,14 +61,16 @@ def rotate_dial(start_position: int, steps: list[str], index: int, num_positions
     
     position = (start_position + step) % num_positions
     print(f"- The dial is rotated {steps[index]} to point at {position}.")
+    if position == 0:
+        num_zeros += 1
 
-    return rotate_dial(position, steps, index + 1, num_positions)
+    return rotate_dial(position, steps, index + 1, num_zeros, num_positions)
 
 
 @app.cell
 def _(input):
-    end_position = rotate_dial(start_position=50, steps=input, index=0, num_positions=100)
-    end_position
+    end_position, num_zeros = rotate_dial(start_position=50, steps=input, index=0, num_positions=100)
+    f"{end_position = }, {num_zeros = }"
     return
 
 

@@ -5,7 +5,16 @@ description = "My solutions of Advent of Code 2025."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "altair>=6.0.0",
+    "duckdb>=1.4.2",
     "marimo>=0.18.1",
     "numpy>=2.3.5",
     "polars>=1.35.2",
+    "pytest>=9.0.1",
+    "python-lsp-server>=1.13.2",
+    "ruff>=0.14.7",
+    "sqlglot>=28.1.0",
+    "vegafusion>=2.0.3",
+    "vl-convert-python>=1.8.0",
+    "websockets>=15.0.1",
 ]

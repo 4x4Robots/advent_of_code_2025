@@ -54,6 +54,32 @@ def _(path_file):
     print(input_tuples)
 
     input_ranges
+    return (range,)
+
+
+@app.cell
+def _(range):
+    def id_is_valid(id: int) -> bool:
+        # no repeating pattern
+        id_str = str(id)
+        middle = len(id_str) // 2
+        print(f"Checking id: {id} index of middle: {middle} first part: {id_str[:middle]} second part: {id_str[middle:]}")
+        if id_str[:middle] == id_str[middle:]:
+            return False
+        return True
+
+    def get_invalid_ids(start: int, stop: int) -> list[int]:
+        invalid_ids = []
+        for id in range(start, stop):
+            if not id_is_valid(id):
+                invalid_ids.append(id)
+        return invalid_ids
+    return (id_is_valid,)
+
+
+@app.cell
+def _(id_is_valid):
+    id_is_valid(2223)
     return
 
 

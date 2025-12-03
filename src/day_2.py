@@ -18,13 +18,6 @@ def _():
 
 
 @app.cell
-def _(mo):
-    ui_switch_complete_file = mo.ui.switch(label="Use complete file", value=True)
-    ui_switch_complete_file
-    return (ui_switch_complete_file,)
-
-
-@app.cell
 def _(PATH_FILE_COMPLETE, PATH_FILE_EXAMPLE, ui_switch_complete_file):
     path_file = PATH_FILE_COMPLETE if ui_switch_complete_file.value else PATH_FILE_EXAMPLE
     path_file
@@ -54,7 +47,7 @@ def _(path_file):
     print(input_tuples)
 
     input_ranges
-    return (range,)
+    return input_tuples, range
 
 
 @app.cell
@@ -63,24 +56,46 @@ def _(range):
         # no repeating pattern
         id_str = str(id)
         middle = len(id_str) // 2
-        print(f"Checking id: {id} index of middle: {middle} first part: {id_str[:middle]} second part: {id_str[middle:]}")
+        #print(f"Checking id: {id} index of middle: {middle} first part: {id_str[:middle]} second part: {id_str[middle:]}")
         if id_str[:middle] == id_str[middle:]:
             return False
         return True
 
     def get_invalid_ids(start: int, stop: int) -> list[int]:
         invalid_ids = []
-        for id in range(start, stop):
+        for id in range(start, stop + 1):
             if not id_is_valid(id):
                 invalid_ids.append(id)
+        #print(f"- {start}-{stop} has {len(invalid_ids)} invalid IDs: {", ".join(invalid_ids)}.")
+        print(f"- {start}-{stop} has {len(invalid_ids)} invalid IDs: {invalid_ids}.")
         return invalid_ids
-    return (id_is_valid,)
+    return get_invalid_ids, id_is_valid
 
 
 @app.cell
 def _(id_is_valid):
     id_is_valid(2223)
     return
+
+
+@app.cell
+def _(get_invalid_ids, input_tuples):
+    total_sum = 0
+    for start, stop in input_tuples:
+        invalid_ids = get_invalid_ids(start, stop)
+        for invalid_id in invalid_ids:
+            total_sum += invalid_id
+
+    print(total_sum)
+    f"Total sum of invalid ids: {total_sum}"
+    return
+
+
+@app.cell
+def _(mo):
+    ui_switch_complete_file = mo.ui.switch(label="Use complete file", value=True)
+    ui_switch_complete_file
+    return (ui_switch_complete_file,)
 
 
 if __name__ == "__main__":

@@ -50,17 +50,46 @@ def _(path_file):
     return input_tuples, range
 
 
+@app.function
+def id_is_valid_part_one(id: int) -> bool:
+    # no repeating pattern twice
+    id_str = str(id)
+    middle = len(id_str) // 2
+    #print(f"Checking id: {id} index of middle: {middle} first part: {id_str[:middle]} second part: {id_str[middle:]}")
+    if id_str[:middle] == id_str[middle:]:
+        return False
+    return True
+
+
 @app.cell
 def _(range):
-    def id_is_valid(id: int) -> bool:
-        # no repeating pattern
+    def id_is_valid_part_two(id: int) -> bool:
+        # no repeating patterns at all
         id_str = str(id)
-        middle = len(id_str) // 2
-        #print(f"Checking id: {id} index of middle: {middle} first part: {id_str[:middle]} second part: {id_str[middle:]}")
-        if id_str[:middle] == id_str[middle:]:
-            return False
-        return True
+        for pattern_length in range(1, len(id_str) // 2 + 1):
+            print(f"Checking pattern {id_str[:pattern_length]} with length: {pattern_length}.")
+            is_repeating = True
+            for multiplier in range(1, len(id_str) // pattern_length + 1):
+                print(f"Comparing: {id_str[:pattern_length]} == {id_str[multiplier*pattern_length:(multiplier+1)*pattern_length]}")
+                if id_str[:pattern_length] != id_str[multiplier*pattern_length:(multiplier+1)*pattern_length]:
+                    is_repeating = False
+            if is_repeating:
+                return False
+            else:
+                print("Still valid")
 
+        return True
+    return (id_is_valid_part_two,)
+
+
+@app.cell
+def _(id_is_valid_part_two, ui_switch_part_two):
+    id_is_valid = id_is_valid_part_two if ui_switch_part_two.value else id_is_valid_part_one
+    return (id_is_valid,)
+
+
+@app.cell
+def _(id_is_valid, range):
     def get_invalid_ids(start: int, stop: int) -> list[int]:
         invalid_ids = []
         for id in range(start, stop + 1):
@@ -69,12 +98,13 @@ def _(range):
         #print(f"- {start}-{stop} has {len(invalid_ids)} invalid IDs: {", ".join(invalid_ids)}.")
         print(f"- {start}-{stop} has {len(invalid_ids)} invalid IDs: {invalid_ids}.")
         return invalid_ids
-    return get_invalid_ids, id_is_valid
+    return (get_invalid_ids,)
 
 
 @app.cell
 def _(id_is_valid):
-    id_is_valid(2223)
+    #id_is_valid(212121)
+    id_is_valid(2121212118)
     return
 
 
@@ -94,8 +124,9 @@ def _(get_invalid_ids, input_tuples):
 @app.cell
 def _(mo):
     ui_switch_complete_file = mo.ui.switch(label="Use complete file", value=True)
-    ui_switch_complete_file
-    return (ui_switch_complete_file,)
+    ui_switch_part_two = mo.ui.switch(label="Part 2", value=True)
+    mo.hstack([ui_switch_complete_file, ui_switch_part_two])
+    return ui_switch_complete_file, ui_switch_part_two
 
 
 if __name__ == "__main__":

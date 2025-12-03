@@ -67,11 +67,13 @@ def _(range):
         # no repeating patterns at all
         id_str = str(id)
         for pattern_length in range(1, len(id_str) // 2 + 1):
-            print(f"Checking pattern {id_str[:pattern_length]} with length: {pattern_length}.")
+            reference_str = id_str[:pattern_length]
+            #print(f"Checking pattern {reference_str} with length: {pattern_length}.")
             is_repeating = True
             for multiplier in range(1, len(id_str) // pattern_length + 1):
-                print(f"Comparing: {id_str[:pattern_length]} == {id_str[multiplier*pattern_length:(multiplier+1)*pattern_length]}")
-                if id_str[:pattern_length] != id_str[multiplier*pattern_length:(multiplier+1)*pattern_length]:
+                second_part = id_str[multiplier*pattern_length:(multiplier+1)*pattern_length]
+                #print(f"Comparing: {reference_str} == {second_part}")
+                if reference_str != second_part and second_part != "":
                     is_repeating = False
             if is_repeating:
                 return False
@@ -103,8 +105,8 @@ def _(id_is_valid, range):
 
 @app.cell
 def _(id_is_valid):
-    #id_is_valid(212121)
-    id_is_valid(2121212118)
+    id_is_valid(212121)
+    #id_is_valid(2121212118)
     return
 
 
@@ -116,7 +118,7 @@ def _(get_invalid_ids, input_tuples):
         for invalid_id in invalid_ids:
             total_sum += invalid_id
 
-    print(total_sum)
+    print(total_sum)  # 48778605167 (Part 2)
     f"Total sum of invalid ids: {total_sum}"
     return
 

@@ -73,21 +73,21 @@ def _(input, is_part_two):
 def find_max_in_str_recursive(numbers: str, numbers_found: str, count_missing: int) -> str:
 
     if count_missing == 0:
-        print("no missing digits")
+        #print("no missing digits")
         return numbers_found
     
     # break if we don't have enough digits left
     if len(numbers) <= count_missing:
-        print("not enough digits left for variation")
+        #print("not enough digits left for variation")
         return numbers_found + numbers
 
-    print(f"Searching for maximum in {numbers} with length {len(numbers)}; {numbers_found = } missing didgits: {count_missing}")
+    #print(f"Searching for maximum in {numbers} with length {len(numbers)}; {numbers_found = } missing didgits: {count_missing}")
     # search for the largest digit in the first (n - count_missing) numbers
     largest_digit = numbers[0]
     largest_index = 0
     for i in range(0, len(numbers) - count_missing + 1):
         current_digit = numbers[i]
-        print(f"- Comparing {largest_digit} with {current_digit} at index {i}")
+        #print(f"- Comparing {largest_digit} with {current_digit} at index {i}")
         if largest_digit < current_digit:
             largest_digit = current_digit
             largest_index = i
@@ -102,10 +102,10 @@ def _(input, is_part_two):
     if is_part_two:
         max_part_2 = 0
         for _numbers in input:
-            part = find_max_in_str_recursive(_numbers, "", 2)
+            part = find_max_in_str_recursive(_numbers, "", 12)
             print(f"Maximum number: {part}")
             max_part_2 += int(part)
-        print(f"Total maximum: {max_part_2}")
+        print(f"Total maximum: {max_part_2}")  # 170449335646486
     return
 
 

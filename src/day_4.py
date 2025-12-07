@@ -61,8 +61,72 @@ def _(input):
         return empty_box_input
     
 
-    array = add_empty_boundary(input)
-    array
+    boxed_input = add_empty_boundary(input)
+    boxed_input
+    return (boxed_input,)
+
+
+@app.cell
+def _(boxed_input):
+    def convert_to_array(input: str) -> list[list[str]]:
+        array = []
+        #max_rows = len(input)
+        #max_cols = len(input)
+        for row in input:
+            row_list = []
+            for char in row:
+                row_list.append(char)
+            array.append(row_list)
+        return array
+
+    array = convert_to_array(boxed_input)
+    array[:2]
+    return (array,)
+
+
+@app.cell
+def _(array):
+    def convert_to_str(array: list[list[str]]) -> list[str]:
+        as_str = []
+        for row in array:
+            as_str.append("".join(row))
+        return as_str
+
+    _test_convert_str = convert_to_str(array)
+    _test_convert_str
+    return (convert_to_str,)
+
+
+@app.function
+def place_is_valid(array, x, y):
+    adjacent_paper = -1  # don't count yourself
+    for i in range(x-1, x+2):  # non-inclusive
+        for j in range(y-1, y+2):
+            if array[i][j] == "@" or array[i][j] == "x":
+                adjacent_paper += 1
+    return adjacent_paper < 4
+
+
+@app.function
+def count_valid_places(array):
+    max_rows = len(array)
+    max_cols = len(array[0])
+    number_of_valid_places = 0
+    for i in range(1, max_rows-1):
+        for j in range(1, max_cols-1):
+            if array[i][j] == "@" or array[i][j] == "x":  # only analyze if there is paper at this place
+                place_valid = place_is_valid(array, i, j)
+                array[i][j] = "x" if place_valid else array[i][j]
+                if place_valid:
+                    number_of_valid_places += 1
+    return array, number_of_valid_places
+
+
+@app.cell
+def _(array, convert_to_str):
+    analyzed_array, number_of_valid_places = count_valid_places(array)
+    print(f"Number of valid places: {number_of_valid_places}")
+    convert_to_str(analyzed_array)
     return
 
 

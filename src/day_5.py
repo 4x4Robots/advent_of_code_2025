@@ -7,7 +7,8 @@ app = marimo.App(width="medium")
 @app.cell
 def _():
     import marimo as mo
-    return (mo,)
+    import copy
+    return copy, mo
 
 
 @app.cell
@@ -137,7 +138,7 @@ def count_elements_in_range(range):
 
 
 @app.function
-def consolidate_ranges(ranges):
+def consolidate_ranges_try_2(ranges):
     new_ranges = []
     for _range in ranges:
         print(f"- Analyzing range {_range}")
@@ -145,19 +146,19 @@ def consolidate_ranges(ranges):
         new_max = _range[1]
         #for i in range(len(new_ranges)):
         for inner in new_ranges:
-            print(f"inner: {inner}")
+            #print(f"inner: {inner}")
             inner_subsumed = False
-            if inner[0] >= _range[0] and inner[0] <= _range[1]:  # minimum of inner is part of current _range
+            if _range[0] >= inner[0] and _range[0] <= inner[1]:  # minimum of current _range is part of inner
                 print(f"{inner[0]} is part of range {_range}")
                 if inner[1] > new_max:
                     new_max = inner[1]  # extend above
                     print(f"New max found: {new_max}")
                 inner_subsumed = True
-            if inner[1] >= _range[0] and inner[1] <= _range[1]:  # maximum of inner is part of current _range
+            if _range[1] >= inner[0] and _range[1] <= inner[1]:  # maximum of current _range is part of inner
                 print(f"{inner[1]} is part of range {_range}")
                 if inner[0] < new_min:
                     new_min = inner[0]  # extend below
-                    print(f"New min found: {new_max}")
+                    print(f"New min found: {new_min}")
                 inner_subsumed = True    
             if inner_subsumed:
                 print(f"Deleting range: {inner}")
@@ -173,7 +174,39 @@ def consolidate_ranges(ranges):
 
 
 @app.cell
-def _(id_ranges):
+def _(copy):
+    def consolidate_ranges(ranges):
+        new_ranges = copy.deepcopy(ranges)
+        for outer in new_ranges:
+            print(f"- Analyzing outer: {outer}")
+            outer_subsumed = False
+            for inner in new_ranges:
+                if outer == inner:
+                    continue
+                # always adapting the inner range (every range at least once)
+                # subsumed outer ranges become (0, 0)
+                if outer[0] > inner[0] and outer[0] < inner[1]:  # minium of outer is part of inner
+                    print(f"outer min {outer[0]} is part of {inner}")
+                    outer_subsumed = True
+                    if outer[1] > inner[1]:
+                        inner[1] = outer[1]  # extend inner above
+                        print(f"New max found: {inner[1]}")
+                if outer[1] > inner[0] and outer[1] < inner[1]: # maximum of outer is part of inner
+                    print(f"outer max {outer[1]} is part of {inner}")
+                    outer_subsumed = True
+                    if outer[0] < inner[0]:
+                        inner[0] = outer[0]  # extend inner below
+                        print(f"New min found: {inner[0]}")
+            if outer_subsumed:
+                print(f"Removing: {outer}")
+                new_ranges.remove(outer)  # or replace with (0, 0)
+        print(f"All ranges: {new_ranges}")
+        return new_ranges
+    return (consolidate_ranges,)
+
+
+@app.cell
+def _(consolidate_ranges, id_ranges):
     def count_fresh_ids(ranges):
         new_ranges = consolidate_ranges(ranges)
         num_fresh_ids = 0
@@ -182,7 +215,7 @@ def _(id_ranges):
         print(f"There are a total of {num_fresh_ids} fresh ids.")
         return num_fresh_ids
 
-    count_fresh_ids(id_ranges)  # part 2: 368069932536331
+    count_fresh_ids(id_ranges)  # part 2: 368069932536331 too high - 317974505182124 -- too low
     return
 
 

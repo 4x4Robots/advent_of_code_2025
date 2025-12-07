@@ -27,7 +27,7 @@ def _(PATH_FILE_COMPLETE, PATH_FILE_EXAMPLE, ui_switch_complete_file):
 @app.cell
 def _(ui_switch_part_two):
     is_part_two = ui_switch_part_two.value
-    return
+    return (is_part_two,)
 
 
 @app.cell
@@ -50,7 +50,7 @@ def _(input):
         print(f"The current input contains {max_rows} rows and {max_cols} columns.")
 
         empty_row = "".join(["." for i in range(0, max_cols+2)])
-    
+
         empty_box_input = []
         empty_box_input.append(empty_row)
         for row in input:
@@ -59,7 +59,7 @@ def _(input):
         print(f"The input with an empty box around contains {len(empty_box_input)} rows and {len(empty_box_input[0])} columns.")
 
         return empty_box_input
-    
+
 
     boxed_input = add_empty_boundary(input)
     boxed_input
@@ -108,24 +108,46 @@ def place_is_valid(array, x, y):
 
 
 @app.function
-def count_valid_places(array):
-    max_rows = len(array)
-    max_cols = len(array[0])
-    number_of_valid_places = 0
-    for i in range(1, max_rows-1):
-        for j in range(1, max_cols-1):
-            if array[i][j] == "@" or array[i][j] == "x":  # only analyze if there is paper at this place
-                place_valid = place_is_valid(array, i, j)
-                array[i][j] = "x" if place_valid else array[i][j]
-                if place_valid:
-                    number_of_valid_places += 1
-    return array, number_of_valid_places
+def remove_paper_rolls(array):
+    for i in range(len(array)):
+        for j in range(len(array[0])):
+            array[i][j] = "." if array[i][j] == "x" else array[i][j]
+    return array
 
 
 @app.cell
-def _(array, convert_to_str):
-    analyzed_array, number_of_valid_places = count_valid_places(array)
-    print(f"Number of valid places: {number_of_valid_places}")
+def _(convert_to_str):
+    def count_valid_places(array, repeat: bool = False):
+        max_rows = len(array)
+        max_cols = len(array[0])
+        number_of_valid_places = 0
+        first = True
+        number_of_valid_places_this_iteration = 1
+        while number_of_valid_places_this_iteration > 0:
+            number_of_valid_places_this_iteration = 0
+            for i in range(1, max_rows-1):
+                for j in range(1, max_cols-1):
+                    if array[i][j] == "@" or array[i][j] == "x":  # only analyze if there is paper at this place
+                        place_valid = place_is_valid(array, i, j)
+                        array[i][j] = "x" if place_valid else array[i][j]
+                        if place_valid:
+                            number_of_valid_places_this_iteration += 1
+            number_of_valid_places += number_of_valid_places_this_iteration
+            print(f"You can remove {number_of_valid_places_this_iteration} paper rolls.")
+            if repeat:
+                array = remove_paper_rolls(array)
+                for row in convert_to_str(array):
+                    print(row)
+            else:
+                number_of_valid_places_this_iteration = 0
+        return array, number_of_valid_places
+    return (count_valid_places,)
+
+
+@app.cell
+def _(array, convert_to_str, count_valid_places, is_part_two):
+    analyzed_array, number_of_valid_places = count_valid_places(array, is_part_two)
+    print(f"Number of valid places: {number_of_valid_places}")  # part 1: 1445. part 2: 8317
     convert_to_str(analyzed_array)
     return
 

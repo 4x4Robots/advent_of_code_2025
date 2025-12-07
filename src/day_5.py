@@ -176,13 +176,11 @@ def consolidate_ranges_try_2(ranges):
 @app.cell
 def _(copy):
     def consolidate_ranges(ranges):
-        new_ranges = copy.deepcopy(ranges)
-        for outer in new_ranges:
+        new_ranges = []
+        for outer in ranges:
             print(f"- Analyzing outer: {outer}")
             outer_subsumed = False
             for inner in new_ranges:
-                if outer == inner:
-                    continue
                 # always adapting the inner range (every range at least once)
                 # subsumed outer ranges become (0, 0)
                 if outer[0] > inner[0] and outer[0] < inner[1]:  # minium of outer is part of inner
@@ -198,8 +196,11 @@ def _(copy):
                         inner[0] = outer[0]  # extend inner below
                         print(f"New min found: {inner[0]}")
             if outer_subsumed:
-                print(f"Removing: {outer}")
-                new_ranges.remove(outer)  # or replace with (0, 0)
+                print(f"Subsumed: {outer}")
+                #new_ranges.remove(outer)  # or replace with (0, 0)
+            else:
+                print(f"Adding: {outer}")
+                new_ranges.append(copy.deepcopy(outer))
         print(f"All ranges: {new_ranges}")
         return new_ranges
     return (consolidate_ranges,)
@@ -215,6 +216,7 @@ def _(consolidate_ranges, id_ranges):
         print(f"There are a total of {num_fresh_ids} fresh ids.")
         return num_fresh_ids
 
+    # part 2 solution: 398109659614960
     count_fresh_ids(id_ranges)  # part 2: 368069932536331 too high - 317974505182124 -- too low
     return
 

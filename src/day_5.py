@@ -131,41 +131,58 @@ def _(id_ranges):
     return
 
 
+@app.function
+def count_elements_in_range(range):
+    return range[1] - range[0] + 1
+
+
+@app.function
+def consolidate_ranges(ranges):
+    new_ranges = []
+    for _range in ranges:
+        print(f"- Analyzing range {_range}")
+        new_min = _range[0]
+        new_max = _range[1]
+        #for i in range(len(new_ranges)):
+        for inner in new_ranges:
+            print(f"inner: {inner}")
+            inner_subsumed = False
+            if inner[0] >= _range[0] and inner[0] <= _range[1]:  # minimum of inner is part of current _range
+                print(f"{inner[0]} is part of range {_range}")
+                if inner[1] > new_max:
+                    new_max = inner[1]  # extend above
+                    print(f"New max found: {new_max}")
+                inner_subsumed = True
+            if inner[1] >= _range[0] and inner[1] <= _range[1]:  # maximum of inner is part of current _range
+                print(f"{inner[1]} is part of range {_range}")
+                if inner[0] < new_min:
+                    new_min = inner[0]  # extend below
+                    print(f"New min found: {new_max}")
+                inner_subsumed = True    
+            if inner_subsumed:
+                print(f"Deleting range: {inner}")
+                #del inner  # always delete (is part of current _range)
+                new_ranges.remove(inner)
+        _range[0] = new_min
+        _range[1] = new_max
+        print(f"Adding range: {_range}")
+        new_ranges.append(_range)
+
+    print(f"Consolidated ranges: {new_ranges}")
+    return new_ranges
+
+
 @app.cell
 def _(id_ranges):
-    def consolidate_ranges(ranges):
-        new_ranges = []
-        for _range in ranges:
-            new_min = _range[0]
-            new_max = _range[1]
-            #for i in range(len(new_ranges)):
-            for inner in new_ranges:
-                inner_subsumed = False
-                if inner[0] >= _range[0] and inner[0] <= _range[1]:  # minimum of inner is part of current _range
-                    print(f"{inner[0]} is part of range {_range}")
-                    if inner[1] > new_max:
-                        new_max = inner[1]  # extend above
-                        print(f"New max found: {new_max}")
-                    inner_subsumed = True
-                if inner[1] >= _range[0] and inner[1] <= _range[1]:  # maximum of inner is part of current _range
-                    print(f"{inner[1]} is part of range {_range}")
-                    if inner[0] < new_min:
-                        new_min = inner[0]  # extend below
-                        print(f"New min found: {new_max}")
-                    inner_subsumed = True    
-                if inner_subsumed:
-                    print(f"Deleting range: {inner}")
-                    #del inner  # always delete (is part of current _range)
-                    new_ranges.remove(inner)
-            _range[0] = new_min
-            _range[1] = new_max
-            print(f"Adding range: {_range}")
-            new_ranges.append(_range)
+    def count_fresh_ids(ranges):
+        new_ranges = consolidate_ranges(ranges)
+        num_fresh_ids = 0
+        for _range in new_ranges:
+            num_fresh_ids += count_elements_in_range(_range)
+        print(f"There are a total of {num_fresh_ids} fresh ids.")
+        return num_fresh_ids
 
-        print(f"Consolidated ranges: {new_ranges}")
-        return new_ranges
-
-    consolidate_ranges(id_ranges)
+    count_fresh_ids(id_ranges)  # part 2: 368069932536331
     return
 
 

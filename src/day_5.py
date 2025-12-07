@@ -32,22 +32,102 @@ def _(ui_switch_part_two):
 
 @app.cell
 def _(path_file):
-    id_ranges = []
-    ids = []
-    with open(path_file, "r") as f:
-        individual_ids = False
-        while line := f.readline():
-            if line.rstrip() == "":
-                individual_ids = True
-                continue  # don't add empty strings
-            if not individual_ids:
-                id_ranges.append(line.rstrip())
-            else:
-                ids.append(line.rstrip())
-        #input = f.readlines()
-        #input = [line.strip() for line in input if line.strip() != ""]
+    def read_input(path_file):
+        id_ranges = []
+        ids = []
+        with open(path_file, "r") as f:
+            individual_ids = False
+            while line := f.readline():
+                if line.rstrip() == "":
+                    individual_ids = True
+                    continue  # don't add empty strings
+                if not individual_ids:
+                    range_str = line.rstrip()
+                    min_max = range_str.split("-")
+                    id_ranges.append([int(min_max[0]), int(min_max[1])])
+                else:
+                    ids.append(int(line.rstrip()))
+            #input = f.readlines()
+            #input = [line.strip() for line in input if line.strip() != ""]
+        return id_ranges, ids
 
+    id_ranges, ids = read_input(path_file)
     {"ranges": id_ranges, "ids": ids}
+    return id_ranges, ids
+
+
+@app.cell
+def _():
+    def is_in_range(id, range):
+        return id >= range[0] and id <= range[1]
+
+    def is_in_ranges(id, ranges):
+        for range in ranges:
+            if is_in_range(id, range):
+                return True
+        return False
+    return (is_in_ranges,)
+
+
+@app.cell
+def _(id_ranges, ids, is_in_ranges):
+    def check_ids(ids, ranges):
+        number_of_fresh_ingredients = 0
+        for id in ids:
+            is_fresh = is_in_ranges(id, ranges)
+            if is_fresh:
+                number_of_fresh_ingredients += 1
+                print(f"- Ingredient with id {id} is fresh.")
+            else:
+                print(f"- Ingredient with id {id} is spoiled.")
+        print(f"Total number of fresh ingredients: {number_of_fresh_ingredients}")
+        return number_of_fresh_ingredients
+
+    check_ids(ids, id_ranges)  # part 1: 617
+    return
+
+
+@app.cell
+def _():
+    def determine_all_fresh(ranges):
+        """Set of unique ids in ranges"""
+        valid_ids = []
+        for r in ranges:
+            for i in range(r[0], r[1]+1):
+                valid_ids.append(i)
+
+        unique_ids = set(valid_ids)
+        print(f"Unique ids: {unique_ids}")
+        print(f"There are {len(unique_ids)} fresh ids.")
+        return unique_ids
+
+    #determine_all_fresh(id_ranges)  # this bricks my laptop
+    return
+
+
+@app.cell
+def _(id_ranges):
+    def consolidate_ranges(ranges):
+        """Try to combine all overlapping ranges"""
+        consolidated_ranges = []
+        for _range in ranges:
+            was_added = False
+            for inner in consolidated_ranges:
+                if _range[0] >= inner[0] and _range[0] <= inner[1]:  # minium is inside
+                    if _range[1] > inner[1]:
+                        inner[1] = _range[1]  # extend above
+                        was_added = True
+                if _range[1] >= inner[0] and _range[1] <= inner[1]:  # maximum is inside
+                    if _range[0] < inner[0]:
+                        inner[0] = _range[0]  # extend below
+                        was_added = True
+            if not was_added:  # wasn't able to extend an already exisiting range
+                consolidated_ranges.append(_range)
+
+        print(f"{consolidated_ranges = }")
+        return consolidated_ranges       
+
+    consolidate_ranges(id_ranges)
     return
 
 

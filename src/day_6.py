@@ -134,6 +134,57 @@ def _(input, repackage_input, ui_switch_complete_file):
 
 @app.cell
 def _(mo):
+    max_length = mo.ui.number(label="max length", value=83)
+    return (max_length,)
+
+
+@app.cell
+def _(input, max_length):
+    for _line in input:
+        print(_line[:max_length.value])  # each block starts with an operator
+    return
+
+
+@app.cell
+def _(input):
+    def find_start_pos(line, debug: bool = False) -> list[int]:
+        parts = []
+        start_pos = []
+        _end_pos = 0
+        while _end_pos < len(line):
+            if debug:
+                print("New loop")
+            _start_pos = _end_pos
+            _end_pos = find_next(line, _start_pos, find_space=True)
+            parts.append(line[_start_pos:_end_pos])
+            start_pos.append(_start_pos)
+            if debug:
+                print(f"Extracted string: '{line[_start_pos:_end_pos]}'")
+            _start_pos = _end_pos + 1
+            _end_pos = find_next(line, _start_pos, find_space=False)
+            # don't add spaces as part
+            if debug:
+                print(f"Extracted string: '{line[_start_pos:_end_pos]}'")
+        return start_pos
+
+
+    def analyze_part_2(input):
+        start_positions = find_start_pos(input[-1])
+    
+        max_length = 80
+        for line in input:
+            print(line[:max_length])
+        test = list("".join([" " for i in range(len(input[0]))]))
+        for start_pos in start_positions:
+            test[start_pos] = "^"
+        print("".join(test[:max_length]))
+
+    analyze_part_2(input)
+    return
+
+
+@app.cell
+def _(mo):
     ui_switch_complete_file = mo.ui.switch(label="Use complete file", value=True)
     ui_switch_part_two = mo.ui.switch(label="Part 2", value=True)
     mo.hstack([ui_switch_complete_file, ui_switch_part_two])

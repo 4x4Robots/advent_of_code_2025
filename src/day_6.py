@@ -86,7 +86,7 @@ def _():
 
 
 @app.cell
-def _(input):
+def _(input, ui_switch_complete_file):
     def repackage_input(input):
         as_array = []
         for line in input:
@@ -94,11 +94,41 @@ def _(input):
             print(as_array[-1])
             if len(as_array) > 1:  # all lines should contain the same number of parts
                 assert len(as_array[-1]) == len(as_array[-2])
-
-        zipped = zip([row for row in as_array])
-        print(list(zipped))  # wrong output!
+            
+        if not ui_switch_complete_file.value:  # example input should be the same length
+            as_array.insert(3, ["0" for i in range(len(as_array[-1]))])
+        #zipped = zip([row for row in as_array])
+        #print(list(zipped))  # wrong output!
+        return as_array
 
     repackage_input(input)
+    return (repackage_input,)
+
+
+@app.cell
+def _(input, repackage_input, ui_switch_complete_file):
+    def calculate_column(part1, part2, part3, part4, operator, debug: bool = False):
+        if debug:
+            print(f"Calculating: {part1} {part2} {part3} {part4} with operator {operator}")
+        if operator == "*":
+            return int(part1) * int(part2) * int(part3) * int(part4)
+        if operator == "+":
+            return int(part1) + int(part2) + int(part3) + int(part4)
+        raise ValueError("Unknown operator")
+
+    def calculate_part_1(input):
+        as_array = repackage_input(input)
+        sum = 0
+        for i in range(len(as_array[0])):
+            result = calculate_column(as_array[0][i], as_array[1][i], as_array[2][i], as_array[3][i], as_array[4][i], not ui_switch_complete_file.value)
+            if not ui_switch_complete_file.value:
+                print(f" = {result}")
+            sum += result
+
+        print(f"Total sum: {sum}")
+        return sum
+
+    calculate_part_1(input)  # part 1: 5667835681547
     return
 
 

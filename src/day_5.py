@@ -107,7 +107,7 @@ def _():
 
 @app.cell
 def _(id_ranges):
-    def consolidate_ranges(ranges):
+    def consolidate_ranges_try_1(ranges):  # doesn't work when a new range bridges the gap between two other ranges
         """Try to combine all overlapping ranges"""
         consolidated_ranges = []
         for _range in ranges:
@@ -126,6 +126,44 @@ def _(id_ranges):
 
         print(f"{consolidated_ranges = }")
         return consolidated_ranges       
+
+    consolidate_ranges_try_1(id_ranges)
+    return
+
+
+@app.cell
+def _(id_ranges):
+    def consolidate_ranges(ranges):
+        new_ranges = []
+        for _range in ranges:
+            new_min = _range[0]
+            new_max = _range[1]
+            #for i in range(len(new_ranges)):
+            for inner in new_ranges:
+                inner_subsumed = False
+                if inner[0] >= _range[0] and inner[0] <= _range[1]:  # minimum of inner is part of current _range
+                    print(f"{inner[0]} is part of range {_range}")
+                    if inner[1] > new_max:
+                        new_max = inner[1]  # extend above
+                        print(f"New max found: {new_max}")
+                    inner_subsumed = True
+                if inner[1] >= _range[0] and inner[1] <= _range[1]:  # maximum of inner is part of current _range
+                    print(f"{inner[1]} is part of range {_range}")
+                    if inner[0] < new_min:
+                        new_min = inner[0]  # extend below
+                        print(f"New min found: {new_max}")
+                    inner_subsumed = True    
+                if inner_subsumed:
+                    print(f"Deleting range: {inner}")
+                    #del inner  # always delete (is part of current _range)
+                    new_ranges.remove(inner)
+            _range[0] = new_min
+            _range[1] = new_max
+            print(f"Adding range: {_range}")
+            new_ranges.append(_range)
+
+        print(f"Consolidated ranges: {new_ranges}")
+        return new_ranges
 
     consolidate_ranges(id_ranges)
     return

@@ -57,19 +57,31 @@ def find_next(text: str, start_pos: int, find_space: bool) -> int:
     return len(text)
 
 
+@app.function
+def split_line(line: str, debug: bool = False) -> list[str]:
+    parts = []
+    _end_pos = 0
+    while _end_pos < len(line):
+        if debug:
+            print("New loop")
+        _start_pos = _end_pos
+        _end_pos = find_next(line, _start_pos, find_space=True)
+        parts.append(line[_start_pos:_end_pos])
+        if debug:
+            print(f"Extracted string: '{line[_start_pos:_end_pos]}'")
+        _start_pos = _end_pos + 1
+        _end_pos = find_next(line, _start_pos, find_space=False)
+        # don't add spaces as part
+        if debug:
+            print(f"Extracted string: '{line[_start_pos:_end_pos]}'")
+    return parts
+
+
 @app.cell
 def _():
     # testing of find_next
     _text = "593 3311    456 23  9724 *   +  *  345"
-    _end_pos = 0
-    while _end_pos < len(_text):
-        print("New loop")
-        _start_pos = _end_pos
-        _end_pos = find_next(_text, _start_pos, find_space=True)
-        print(f"Extracted string: '{_text[_start_pos:_end_pos]}'")
-        _start_pos = _end_pos + 1
-        _end_pos = find_next(_text, _start_pos, find_space=False)
-        print(f"Extracted string: '{_text[_start_pos:_end_pos]}'")
+    split_line(_text, debug=True)
     return
 
 
@@ -78,8 +90,13 @@ def _(input):
     def repackage_input(input):
         as_array = []
         for line in input:
-            as_array.append(line.split(" "))
+            as_array.append(split_line(line))
             print(as_array[-1])
+            if len(as_array) > 1:  # all lines should contain the same number of parts
+                assert len(as_array[-1]) == len(as_array[-2])
+
+        zipped = zip([row for row in as_array])
+        print(list(zipped))  # wrong output!
 
     repackage_input(input)
     return

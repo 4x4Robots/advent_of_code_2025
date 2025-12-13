@@ -8,7 +8,7 @@ app = marimo.App(width="medium")
 def _():
     import marimo as mo
     import copy
-    return copy, mo
+    return (mo,)
 
 
 @app.cell
@@ -44,27 +44,43 @@ def _(path_file):
     return (read_input,)
 
 
-@app.cell
-def _(copy):
-    def analyze_line(previous_line: str, current_line: str) -> str:
-        illuminated_line = copy.deepcopy(current_line)
-        for i, character in enumerate(previous_line):
-            print(f"{i}: {character}")
-        return illuminated_line
-    return (analyze_line,)
+@app.function
+def analyze_line(previous_line: str, current_line: str) -> (str, int):
+    illuminated_line = [character for character in current_line]
+    number_of_splits = 0
+    for i, character in enumerate(previous_line):
+        #print(f"{i}: {character}")
+        
+        if previous_line[i] == "S":
+            if illuminated_line[i] == ".":
+                illuminated_line[i] = "|"
+            else:
+                raise ValueError("Can't start illumination!")
+                
+        if illuminated_line[i] == "^" and previous_line[i] == "|":
+            number_of_splits += 1  # split to two beams
+            illuminated_line[i-1] = "|"
+            illuminated_line[i+1] = "|"
+        elif previous_line[i] == "|":
+            # beam continues straigt
+            illuminated_line[i] = "|"
+        
+    return "".join(illuminated_line), number_of_splits
 
 
 @app.cell
-def _(analyze_line, path_file, read_input):
+def _(path_file, read_input):
     def calculate_illumination(path_file: str):
         input = read_input(path_file)
         illuminated_lines = [input[0]]
+        total_number_of_splits = 0
         for i in range(1, len(input)):
-            new_line = analyze_line(illuminated_lines[i-1], input[i])
+            new_line, number_of_splits = analyze_line(illuminated_lines[i-1], input[i])
             illuminated_lines.append(new_line)
-        return illuminated_lines
+            total_number_of_splits += number_of_splits
+        return illuminated_lines, total_number_of_splits
 
-    calculate_illumination(path_file)
+    calculate_illumination(path_file)  # part 1: 1687
     return
 
 

@@ -41,7 +41,7 @@ def _(path_file):
 
     input = read_input(path_file)
     input[:20]
-    return (read_input,)
+    return input, read_input
 
 
 @app.function
@@ -81,6 +81,41 @@ def _(path_file, read_input):
         return illuminated_lines, total_number_of_splits
 
     calculate_illumination(path_file)  # part 1: 1687
+    return
+
+
+@app.cell
+def _(input):
+    def explore_direction(input: list[str], row_index: int, beam_position: int, number_of_found_ways: int, go_left: bool) -> int:
+        """Return the total number of ways if going left or right.
+        Don't change input!"""
+        #print(f"Exploring: {row_index = }, {beam_position = }, {number_of_found_ways = }")
+        #print(f"Current input line: {input[row_index]}")
+    
+        if row_index + 1 >= len(input):
+            # reached bottom
+            return number_of_found_ways + 1
+
+        if input[row_index][beam_position] == "^":
+            number_of_found_ways = explore_direction(input, row_index+1, beam_position-1, number_of_found_ways, go_left)  # go left
+            number_of_found_ways = explore_direction(input, row_index+1, beam_position+1, number_of_found_ways, go_left)  # go right
+        elif input[row_index][beam_position] == ".":
+            number_of_found_ways = explore_direction(input, row_index+1, beam_position, number_of_found_ways, go_left)  # go straight
+
+        return number_of_found_ways
+
+        # always explore left, then right
+
+    def find_start_position(first_line: str) -> int:
+        for i, character in enumerate(first_line):
+            if character == "S":
+                print(f"Found starting index: {i}")
+                return i
+        
+
+    number_of_found_ways = explore_direction(input, 1, find_start_position(input[0]), 0, go_left=True)
+    print(f"Number of posssible tachyon paths: {number_of_found_ways}")
+    number_of_found_ways
     return
 
 

@@ -56,8 +56,9 @@ def _(path_file, read_input):
         coordinates = [convert_to_coordinate(line) for line in input]
         return coordinates
 
-    read_input_coordinates(path_file)[:3]
-    return (read_input_coordinates,)
+    coordinates = read_input_coordinates(path_file)
+    coordinates[:3]
+    return coordinates, read_input_coordinates
 
 
 @app.cell
@@ -69,13 +70,34 @@ def _(math, path_file, read_input_coordinates):
         distances = [[-1.0 for i in range(len(coordinates))] for j in range(len(coordinates))]
         #print(distances)
         for row in range(len(coordinates)):
-            for column in range(len(coordinates)):
+            for column in range(row, len(coordinates)):
                 distances[row][column] = calc_distance(coordinates[row], coordinates[column])
 
-        for row in distances:
-            print(row)
+        #for row in distances:
+        #    print(row)
+        return distances
 
     calculate_distances(read_input_coordinates(path_file))
+    return (calculate_distances,)
+
+
+@app.cell
+def _(calculate_distances, coordinates, path_file, read_input_coordinates):
+    def find_minimum_distance(distances) -> (int, int):
+        """Find which two junctions boxes have the minimal distance between each other."""
+        min_row = 1
+        min_col = 0
+        min_distance = float("+inf")
+        for row in range(len(distances)):
+            for col in range(row, len(distances)):
+                if distances[row][col] > 0.0 and distances[row][col] < min_distance:
+                    min_row = row
+                    min_col = col
+                    min_distance = distances[row][col]
+        return min_row, min_col, min_distance
+
+    min_row, min_col, min_distance = find_minimum_distance(calculate_distances(read_input_coordinates(path_file)))
+    ({min_row: coordinates[min_row], min_col: coordinates[min_col]}, min_distance)
     return
 
 

@@ -85,8 +85,8 @@ def _(path_file, read_input):
 
 
 @app.cell
-def _(input):
-    def explore_direction(input: list[str], row_index: int, beam_position: int, number_of_found_ways: int, go_left: bool) -> int:
+def _(explore_direction):
+    def explore_direction_brute_force(input: list[str], row_index: int, beam_position: int, number_of_found_ways: int, go_left: bool) -> int:
         """Return the total number of ways if going left or right.
         Don't change input!"""
         #print(f"Exploring: {row_index = }, {beam_position = }, {number_of_found_ways = }")
@@ -113,9 +113,43 @@ def _(input):
                 return i
         
 
-    number_of_found_ways = explore_direction(input, 1, find_start_position(input[0]), 0, go_left=True)
-    print(f"Number of posssible tachyon paths: {number_of_found_ways}")
-    number_of_found_ways
+    #number_of_found_ways = explore_direction(input, 1, find_start_position(input[0]), 0, go_left=True)  # takes way too long
+    #print(f"Number of posssible tachyon paths: {number_of_found_ways}")
+    #number_of_found_ways
+    return
+
+
+@app.cell
+def _(input):
+    def count_possible_paths(input) -> (int, list[list[int]]):
+        """Return the total amount of possible paths for a tachyon beam.
+        Don't change input."""
+        number_of_lasers = [[0 for i in range(len(row))] for row in input]
+        #print(number_of_lasers)
+    
+        for column_index, character in enumerate(input[0]):
+            if character == "S":  # find start
+                number_of_lasers[0][column_index] += 1
+            
+        for row_index in range(1, len(input)):
+            for column_index, character in enumerate(input[row_index]):
+                #if character == "S":
+                #    number_of_lasers[row_index][column_index] += 1
+                if character == ".":  # only go straigt
+                    number_of_lasers[row_index][column_index] += number_of_lasers[row_index-1][column_index]
+                if character == "^":
+                    number_of_lasers[row_index][column_index-1] += number_of_lasers[row_index-1][column_index]  # go left
+                    number_of_lasers[row_index][column_index+1] += number_of_lasers[row_index-1][column_index]  # go right
+
+        total_number_paths = 0
+        for number_lasers in number_of_lasers[-1]:
+            total_number_paths += number_lasers
+    
+        return total_number_paths, number_of_lasers
+
+    number_of_paths, laser_paths = count_possible_paths(input)
+    print(f"Number of posssible tachyon paths: {number_of_paths}")  # part 2: 390684413472684
+    number_of_paths
     return
 
 

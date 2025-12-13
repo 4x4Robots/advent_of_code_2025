@@ -8,7 +8,7 @@ app = marimo.App(width="medium")
 def _():
     import marimo as mo
     import copy
-    return (mo,)
+    return copy, mo
 
 
 @app.cell
@@ -41,6 +41,30 @@ def _(path_file):
 
     input = read_input(path_file)
     input[:20]
+    return (read_input,)
+
+
+@app.cell
+def _(copy):
+    def analyze_line(previous_line: str, current_line: str) -> str:
+        illuminated_line = copy.deepcopy(current_line)
+        for i, character in enumerate(previous_line):
+            print(f"{i}: {character}")
+        return illuminated_line
+    return (analyze_line,)
+
+
+@app.cell
+def _(analyze_line, path_file, read_input):
+    def calculate_illumination(path_file: str):
+        input = read_input(path_file)
+        illuminated_lines = [input[0]]
+        for i in range(1, len(input)):
+            new_line = analyze_line(illuminated_lines[i-1], input[i])
+            illuminated_lines.append(new_line)
+        return illuminated_lines
+
+    calculate_illumination(path_file)
     return
 
 

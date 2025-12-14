@@ -119,19 +119,21 @@ def _(
 
         connections = []
         for i in range(number_of_connections):
+            print(f"Creating connection {i}")
             node_1, node_2, min_distance = find_minimum_distance(distances)
             # set distances to already connected
             distances[node_1][node_2] = -1.0
             distances[node_2][node_1] = -1.0
             # add connections
             connections.append((node_1, node_2))
-            print(f"Adding connection between node {node_1} and node {node_2} with distance {min_distance}.")
-            print(f"- Connecting {index_to_str(coordinates, node_1)} and {index_to_str(coordinates, node_2)}")
+            #print(f"Adding connection between node {node_1} and node {node_2} with distance {min_distance}.")
+            #print(f"- Connecting {index_to_str(coordinates, node_1)} and {index_to_str(coordinates, node_2)}")
         print(f"Connections: {connections}")
     
         # combine to circuits
         circuits: list[list[int]] = []
-        for connection in connections:
+        for i, connection in enumerate(connections):
+            print(f"- Sorting connection {i}: {connection}")
             matching_circuits: list[int] = []
             # find alle circuits which are aprt of this connection
             for idx_circuit, circuit in enumerate(circuits):
@@ -140,30 +142,40 @@ def _(
 
             # no matching circuit -> create a new circuit
             if len(matching_circuits) == 0:
-                print(f"Creating new circuit with nodes {connection}.")
+                #print(f"Creating new circuit with nodes {connection}.")
                 circuits.append([connection[0], connection[1]])
 
             # only part of one circuit
             if len(matching_circuits) == 1:
                 current_circuit = circuits[matching_circuits[0]]
                 if connection[0] in current_circuit and connection[1] not in current_circuit:
-                    print(f"Adding node {connection[1]} to circuit: {current_circuit}")
+                    #print(f"Adding node {connection[1]} to circuit: {current_circuit}")
                     current_circuit.append(connection[1])
                 elif connection[1] in current_circuit and connection[0] not in current_circuit:
-                    print(f"Adding node {connection[0]} to circuit: {current_circuit}")
+                    #print(f"Adding node {connection[0]} to circuit: {current_circuit}")
                     current_circuit.append(connection[0])
 
             # part of multiple circuits -> consolidate circuits
             if len(matching_circuits) > 1:
-                consolidated_circuit = []
-                for idx_matching_circuit in matching_circuits:
-                    current_circuit = circuits.pop(idx_matching_circuit)
+                consolidated_circuit = circuits[matching_circuits[0]]
+                used_circuits = []
+                for idx_matching_circuit in matching_circuits[1:]:
+                    current_circuit = circuits[idx_matching_circuit]
+                    used_circuits.append(current_circuit)  # delete by value after using it, because indices can change after the first pop
+                    #print(f"{consolidated_circuit = } {current_circuit = }")
                     for node in current_circuit:
+                        #print(f"Checking node {node}")
                         if node not in consolidated_circuit:
-                            print(f"Consolidating node {node} to circuit: {consolidated_circuit}")
+                            #print(f"Consolidating node {node} to circuit: {consolidated_circuit}")
                             consolidated_circuit.append(node)
-                        
-                circuits.append(consolidated_circuit)
+
+                #print(f" == Current circuits: {circuits}")
+                for used_circuit in used_circuits:
+                    #print(f" == removing circuit {used_circuit}")
+                    circuits.remove(used_circuit)
+                #print(f" == Updated circuits: {circuits}")
+
+                #circuits.append(consolidated_circuit)  # already working on first matching circuit
 
         circuits = sorted(circuits, key=len, reverse=True)
 
@@ -172,7 +184,7 @@ def _(
         return circuits, result
                 
 
-
+    # solution part 1: 131150
     connect_circuits(path_file, number_of_connections=1000 if ui_switch_complete_file.value else 10)
     return
 

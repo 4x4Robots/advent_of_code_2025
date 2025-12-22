@@ -48,15 +48,75 @@ def _(path_file):
 
 @app.cell
 def _(path_file, read_input):
-    def convert_input(path_file: str) -> list[tuple[int, int]]:
+    def convert_input_tuple(path_file: str) -> list[tuple[int, int]]:
         input = read_input(path_file)
         red_tiles = [tuple(map(int, line.split(","))) for line in input]
         # (column, row)
         return red_tiles
 
-    red_tiles = convert_input(path_file)
+    def convert_input_point(path_file: str) -> list[Point]:
+        tuples = convert_input_tuple(path_file)
+        points = [Point(*pos) for pos in tuples]
+        return points
+
+    red_tiles = convert_input_point(path_file)
     red_tiles
-    return (red_tiles,)
+    return (convert_input_tuple,)
+
+
+@app.class_definition
+# Define helper classes for polygon calculations
+# https://blog.jverkamp.com/2025/12/09/aoc-2025-day-9-polygoninator/
+
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+
+@app.cell
+def _():
+    # Check if two line segments are intersecting
+    # https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
+    # https://www.geeksforgeeks.org/dsa/check-if-two-given-line-segments-intersect/
+    class Line2D:
+        def __init__(self, start: Point, end: Point):
+            self.start = start
+            self.end = end
+
+        def intersects(self, other: Point) -> bool:
+            d1 = ((self.end.x - self.start.x) * (other.start.y - self.start.y)
+                - (self.end.y - self.start.y) * (other.start.x - self.start.x))
+            d2 = ((self.end.x - self.start.x) * (other.end.y - self.start.y)
+                - (self.end.y - self.start.y) * (other.end.x - self.start.x))
+            d3 = ((other.end.x - other.start.x) * (self.start.y - other.start.y)
+                - (other.end.y - other.start.y) * (self.start.x - other.start.x))
+            d4 = ((other.end.x - other.start.x) * (self.end.y - other.start.y)
+                - (other.end.y - other.start.y) * (self.end.x - other.start.x))
+
+            if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)):
+                return True
+
+            return False
+
+    # basic tests
+    def test_intersects():
+        # two diagonals
+        l1 = Line2D(Point(0, 0), Point(10,10))
+        l2 = Line2D(Point(0, 10), Point(10,0))
+        assert l1.intersects(l2) == True
+        # two parallel lines
+        l3 = Line2D(Point(10, 0), Point(20, 10))
+        assert l1.intersects(l3) == False
+        # two orthogonal lines with gap
+        lx = Line2D(Point(0, 0), Point(10, 0))
+        lv = Line2D(Point(5, 1), Point(5, 10))
+        assert lx.intersects(lv) == False
+
+    test_intersects()
+    return
 
 
 @app.cell
@@ -77,7 +137,7 @@ def _():
 
 
 @app.cell
-def _(calculate_area, red_tiles):
+def _(calculate_area, convert_input_tuple, path_file):
     def find_largest_area(positions: list):
         """calculate the area for all combinations of posistions"""
         max_area = 0
@@ -90,7 +150,7 @@ def _(calculate_area, red_tiles):
         print(f"Found maximum possible area: {max_area}")
         return max_area
 
-    find_largest_area(red_tiles)  # part 1: 4735222687
+    find_largest_area(convert_input_tuple(path_file))  # part 1: 4735222687
     return
 
 

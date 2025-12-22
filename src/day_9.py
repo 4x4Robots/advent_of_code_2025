@@ -61,7 +61,7 @@ def _(path_file, read_input):
 
     red_tiles = convert_input_point(path_file)
     red_tiles
-    return (convert_input_tuple,)
+    return convert_input_point, convert_input_tuple
 
 
 @app.class_definition
@@ -116,7 +116,7 @@ def _():
         assert lx.intersects(lv) == False
 
     test_intersects()
-    return
+    return (Line2D,)
 
 
 @app.cell
@@ -159,6 +159,79 @@ def _():
         assert poly.contains(p_out) == False
 
     test_contains()
+    return (Polygon,)
+
+
+@app.cell
+def _(Line2D, Polygon, convert_input_point, path_file):
+    def part2(path_file):
+        points = convert_input_point(path_file)
+        polygon = Polygon(points)
+
+        max_area = 0
+
+        for i in range(len(points)):
+            for j in range(i + 1, len(points)):
+                # All 4 vertices must be within the polygon
+                # Because the polygons are on a grid of points, this means we can ignore the edge checks
+                # This will skip rectangles with width/height = 1, but those won't be max area (we assume)
+                vertices = [
+                    Point(
+                        min(points[i].x, points[j].x) + 1,
+                        min(points[i].y, points[j].y) + 1
+                    ),
+                    Point(
+                        min(points[i].x, points[j].x) + 1,
+                        max(points[i].y, points[j].y) - 1
+                    ),
+                    Point(
+                        max(points[i].x, points[j].x) - 1,
+                        min(points[i].y, points[j].y) + 1
+                    ),
+                    Point(
+                        max(points[i].x, points[j].x) - 1,
+                        max(points[i].y, points[j].y) - 1
+                    ),
+                ]
+                not_inside = False
+                for v in vertices:
+                    if polygon.contains(v) == False:
+                        not_inside = True
+                if not_inside:
+                    continue
+
+                # No edge of the rectangle can intersect with any edge of the polygon
+                rectangle_edges = [
+                    Line2D(vertices[0], vertices[1]),
+                    Line2D(vertices[1], vertices[3]),
+                    Line2D(vertices[3], vertices[2]),
+                    Line2D(vertices[2], vertices[0]),
+                ]
+
+                def intersects():
+                    for rect_edge in rectangle_edges:
+                        for i in range(len(points)):
+                            poly_edge = Line2D(points[i], points[(i + 1) % len(points)]) # wrap around end of file
+                            if rect_edge.intersects(poly_edge):
+                                return True
+                            
+                    return False
+                
+                if intersects():
+                    continue
+            
+
+                xd = abs(points[i].x - points[j].x) + 1;
+                yd = abs(points[i].y - points[j].y) + 1;
+                area = xd * yd;
+
+                if area > max_area:
+                    max_area = area
+
+        print(f"Maximal possible area in part 2: {max_area}")
+        return max_area
+
+    part2(path_file)  # part 2: 1569262188  takes 32 seconds
     return
 
 

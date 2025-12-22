@@ -59,7 +59,7 @@ def rotate_dial_recursive(start_position: int, steps: list[str], index: int, num
     else:
         raise ValueError(f"Don't recognize step: {step}")
     step = int(step[1:]) * direction
-    
+
     position = (start_position + step) % num_positions
     print(f"- The dial is rotated {steps[index]} to point at {position}.")
     if position == 0:
@@ -81,7 +81,7 @@ def _(step):
         """Rotate the position by the steps at the given index left or right. Return the number of zeros."""
         position = start_position
         num_zeros = 0
-    
+
         for line in lines:
             if line[0] == "L":
                 direction = -1
@@ -90,7 +90,7 @@ def _(step):
             else:
                 raise ValueError(f"Don't recognize step: {step}")
             step = int(line[1:]) * direction
-    
+
             position = (position + step) % num_positions
             print(f"- The dial is rotated {line} to point at {position}.")
             if position == 0:
@@ -114,7 +114,7 @@ def _(step):
         position = start_position
         num_zeros = 0
         print(f"- The dial starts by pointing at {start_position}.")
-    
+
         for line in lines:
             if line[0] == "L":
                 direction = -1
@@ -169,7 +169,7 @@ def _(step):
             if position == 0: #and zeros_passed == 0:
                 num_zeros += 1
                 print("Ended on zero.")
-        
+
             print(f"- The dial is rotated {line} to point at {position}{'.' if zeros_passed == 0 else f'; during this rotation, it points at 0 {zeros_passed} times.'} {zeros_passed = } {num_zeros = }")
 
         return num_zeros

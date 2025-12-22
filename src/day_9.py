@@ -56,7 +56,7 @@ def _(path_file, read_input):
 
     red_tiles = convert_input(path_file)
     red_tiles
-    return
+    return (red_tiles,)
 
 
 @app.cell
@@ -73,6 +73,24 @@ def _():
     assert calculate_area((7, 1), (11, 7)) == 35
     assert calculate_area((7, 3), (2, 3)) == 6
     assert calculate_area((2, 5), (11, 1)) == 50
+    return (calculate_area,)
+
+
+@app.cell
+def _(calculate_area, red_tiles):
+    def find_largest_area(positions: list):
+        """calculate the area for all combinations of posistions"""
+        max_area = 0
+        for i in range(len(positions)):
+            for j in range(i, len(positions)):
+                area = calculate_area(positions[i], positions[j])
+
+                if area > max_area:
+                    max_area = area
+        print(f"Found maximum possible area: {max_area}")
+        return max_area
+
+    find_largest_area(red_tiles)  # part 1: 4735222687
     return
 
 

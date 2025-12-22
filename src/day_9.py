@@ -121,6 +121,49 @@ def _():
 
 @app.cell
 def _():
+    class Polygon:
+        def __init__(self, vertices: list[Point]):
+            self.vertices = vertices
+
+        # Check if a point is inside the polygon using the ray-casting algorithm
+        # Source: https://www.xjavascript.com/blog/check-if-polygon-is-inside-a-polygon/
+        def contains(self, point: Point) -> bool:
+            inside = False
+            n = len(self.vertices)
+
+            for i in range(n):
+                j = (i + n - 1) % n
+
+                pi = self.vertices[i]
+                pj = self.vertices[j]
+
+                # TODO: On edge check
+
+                if (pi.y > point.y) != (pj.y > point.y):
+                    x_intersect = (pj.x - pi.x) * (point.y - pi.y) / (pj.y - pi.y) + pi.x
+                    if point.x < x_intersect:
+                        inside = not inside
+
+            return inside
+    
+
+    # basic test contains
+    def test_contains():
+        # basic square
+        poly = Polygon([Point(0, 0), Point(10, 0), Point(10, 10), Point(0, 10)])
+        # point inside
+        p_in = Point(5, 5)
+        assert poly.contains(p_in) == True
+        # point outside
+        p_out = Point(15, 5)
+        assert poly.contains(p_out) == False
+
+    test_contains()
+    return
+
+
+@app.cell
+def _():
     def calculate_area(pos1, pos2):
         """Calculate the area between two posistions."""
         delta_x = abs(pos2[0] - pos1[0]) + 1

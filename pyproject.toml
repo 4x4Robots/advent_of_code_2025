@@ -17,4 +17,5 @@ dependencies = [
     "vegafusion>=2.0.3",
     "vl-convert-python>=1.8.0",
     "websockets>=15.0.1",
+    "z3-solver>=4.15.4.0",
 ]

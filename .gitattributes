@@ -1,0 +1,4 @@
+# Specify files to encrypt with git-crypt
+input/** filter=git-crypt diff=git-crypt
+web_solutions/** filter=git-crypt diff=git-crypt
+
